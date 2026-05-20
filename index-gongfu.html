@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GongFuLog - Catálogo de Tés</title>
+    <link rel="icon" type="image/png" href="./Gongfu Log Images/LogoGongfu log.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B6F47;
+            --primary-light: #B8956F;
+            --primary-dark: #5D4D35;
+            --secondary: #D4AF86;
+            --secondary-light: #E8D4B8;
+            --accent: #2D5016;
+            --accent-light: #4A7C2C;
+            --bg-light: #FEFDF8;
+            --bg-gray: #F5F3EE;
+            --text-dark: #3D3D3D;
+            --text-light: #6B6B6B;
+            --border: #D9D4CC;
+            --success: #5A8E3E;
+            --warning: #D89B4A;
+            --danger: #C85A5A;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-gray) 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0;
+            background-image: url('./Gongfu Log Images/Banner.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15);
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.4) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        header > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        header h1 img {
+            height: 72px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 300;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            padding-bottom: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tabs button {
+            padding: 12px 24px;
+            border: 2px solid var(--border);
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(139, 111, 71, 0.3);
+        }
+
+        .nav-tabs button:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .quantity-input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        button.btn {
+            padding: 12px 28px;
+            background: var(--primary);
+            color: #FEFDF8;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button.btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 111, 71, 0.4);
+        }
+
+        button.btn-secondary {
+            background: var(--secondary-light);
+            color: var(--primary-dark);
+            border: 2px solid var(--secondary);
+        }
+
+        button.btn-secondary:hover {
+            background: var(--secondary);
+            color: var(--primary-dark);
+        }
+
+        button.btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        button.btn-danger {
+            background: var(--danger);
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        button.btn-danger:hover {
+            background: #C0392B;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .category-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 111, 71, 0.2);
+        }
+
+        .category-card.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .category-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tea-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .tea-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tea-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .tea-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .tea-category {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            background: var(--bg-gray);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .tea-quantity {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .tea-quantity span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .tea-rating {
+            font-size: 14px;
+            color: var(--warning);
+            margin-bottom: 12px;
+        }
+
+        .tea-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tea-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-cata {
+            background: var(--accent);
+        }
+
+        .btn-cata:hover {
+            background: #1E3C0D;
+        }
+
+        .btn-edit {
+            background: var(--warning);
+        }
+
+        .btn-edit:hover {
+            background: #E68900;
+        }
+
+        .rating-input {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .star {
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            opacity: 0.3;
+        }
+
+        .star:hover,
+        .star.active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .evaluation-section {
+            background: var(--bg-gray);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .evaluation-row {
+            margin-bottom: 20px;
+        }
+
+        .evaluation-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .evaluation-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .history-entry {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .history-tea {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .history-ratings {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .history-rating-item {
+            background: var(--bg-gray);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .history-rating-label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .history-rating-value {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .history-notes {
+            font-size: 13px;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .history-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .success-message {
+            background: var(--success);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tea-detail {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .tea-detail-section {
+            background: var(--bg-gray);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .tea-detail-section h4 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .tea-detail-info {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .tea-detail-info label {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-group button {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 32px;
+            }
+
+            header h1 img {
+                height: 48px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tabs button {
+                width: 100%;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .tea-list {
+                grid-template-columns: 1fr;
+            }
+
+            .history-ratings {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="auth-screen" style="
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #8B6F47 0%, #6B5635 100%);
+        padding: 20px;
+    ">
+        <div style="
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        ">
+            <img src="./Gongfu Log Images/LogoGongfu log.png" alt="GongFuLog" style="height: 64px; width: auto; margin-bottom: 16px;">
+            <h1 style="font-size: 28px; font-weight: 700; color: #8B6F47; margin-bottom: 4px;">GongFuLog</h1>
+            <p style="color: #666; font-size: 14px; margin-bottom: 32px;">Tu diario personal de tés</p>
+
+            <div id="auth-tabs" style="display:flex; gap:8px; margin-bottom:24px;">
+                <button onclick="showAuthTab('login')" id="tab-login" style="flex:1; padding:10px; background:#8B6F47; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px;">Entrar</button>
+                <button onclick="showAuthTab('register')" id="tab-register" style="flex:1; padding:10px; background:#F5F3EE; color:#8B6F47; border:1px solid #E0DDD7; border-radius:8px; font-weight:600; cursor:pointer; font-size:14px;">Registrarse</button>
+            </div>
+
+            <div id="auth-error" style="display:none; background:#fde8e8; color:#E74C3C; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+            <div id="auth-success" style="display:none; background:#e8f5e9; color:#2e7d32; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-form">
+                <div style="margin-bottom:14px; text-align:left;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#2C2C2C; margin-bottom:6px;">Correo electrónico</label>
+                    <input id="login-email" type="email" placeholder="tu@correo.com" style="width:100%; padding:10px 12px; border:1px solid #E0DDD7; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:20px; text-align:left;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#2C2C2C; margin-bottom:6px;">Contraseña</label>
+                    <input id="login-password" type="password" placeholder="••••••••" style="width:100%; padding:10px 12px; border:1px solid #E0DDD7; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <button onclick="handleLogin()" style="width:100%; padding:12px; background:#8B6F47; color:white; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;">Entrar</button>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="register-form" style="display:none;">
+                <div style="margin-bottom:14px; text-align:left;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#2C2C2C; margin-bottom:6px;">Correo electrónico</label>
+                    <input id="reg-email" type="email" placeholder="tu@correo.com" style="width:100%; padding:10px 12px; border:1px solid #E0DDD7; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:14px; text-align:left;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#2C2C2C; margin-bottom:6px;">Contraseña</label>
+                    <input id="reg-password" type="password" placeholder="Mínimo 6 caracteres" style="width:100%; padding:10px 12px; border:1px solid #E0DDD7; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:20px; text-align:left;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#2C2C2C; margin-bottom:6px;">Confirmar contraseña</label>
+                    <input id="reg-password2" type="password" placeholder="Repite tu contraseña" style="width:100%; padding:10px 12px; border:1px solid #E0DDD7; border-radius:8px; font-size:14px; box-sizing:border-box;">
+                </div>
+                <button onclick="handleRegister()" style="width:100%; padding:12px; background:#8B6F47; color:white; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;">Crear cuenta</button>
+            </div>
+
+            <div id="auth-loading" style="display:none; color:#8B6F47; font-size:14px; margin-top:16px;">Cargando...</div>
+        </div>
+    </div>
+    <!-- MAIN APP (hidden until logged in) -->
+    <div id="app-screen" style="display:none;">
+    <div class="container">
+        <header>
+            <h1>
+                GongFuLog
+            </h1>
+            <p>Catálogo personal y evaluación de tus tés de gong fu cha</p>
+            <div style="margin-top:12px;">
+                <span id="user-email-display" style="font-size:12px; opacity:0.8; margin-right:12px;"></span>
+                <button onclick="handleLogout()" style="padding:6px 14px; background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.4); border-radius:6px; font-size:12px; cursor:pointer; font-weight:600;">Cerrar sesión</button>
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="inventory">📦 Mis Tés</button>
+            <button class="tab-btn" data-tab="add-tea">➕ Agregar Té</button>
+            <button class="tab-btn" data-tab="tasting">🍵 Nueva Cata</button>
+            <button class="tab-btn" data-tab="history">📜 Historial</button>
+            <button class="tab-btn" data-tab="stats">📊 Estadísticas</button>
+        </div>
+
+        <div id="success-message" class="success-message"></div>
+
+        <!-- SECTION: Mis Tés (Inventario) -->
+        <section id="inventory" class="section active">
+            <div class="card">
+                <h3>Mi Inventario de Tés</h3>
+                <div class="search-box">
+                    <input type="text" id="search-inventory" placeholder="🔍 Buscar té...">
+                </div>
+                <div class="stats" id="stats-container"></div>
+            </div>
+
+            <div id="categories-container"></div>
+        </section>
+
+        <!-- SECTION: Agregar Té -->
+        <section id="add-tea" class="section">
+            <div class="card">
+                <h3>Agregar un Nuevo Té</h3>
+                <form id="add-tea-form">
+                    <div class="form-group">
+                        <label for="tea-name">Nombre del té:</label>
+                        <input type="text" id="tea-name" placeholder="Ej: Tie Guan Yin, Da Hong Pao..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría:</label>
+                        <div class="category-grid" id="category-selector">
+                            <div class="category-card" data-category="Verde">
+                                <div class="category-icon">🟢</div>
+                                <div class="category-name">Verde</div>
+                            </div>
+                            <div class="category-card" data-category="Blanco">
+                                <div class="category-icon">⚪</div>
+                                <div class="category-name">Blanco</div>
+                            </div>
+                            <div class="category-card" data-category="Negro">
+                                <div class="category-icon">⬛</div>
+                                <div class="category-name">Negro</div>
+                            </div>
+                            <div class="category-card" data-category="Oolong">
+                                <div class="category-icon">🟣</div>
+                                <div class="category-name">Oolong</div>
+                            </div>
+                            <div class="category-card" data-category="Pu-erh">
+                                <div class="category-icon">🟤</div>
+                                <div class="category-name">Pu-erh</div>
+                            </div>
+                            <div class="category-card" data-category="Dark">
+                                <div class="category-icon">🌑</div>
+                                <div class="category-name">Dark</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="tea-category" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stock disponible:</label>
+                        <div id="stock-entries">
+                            <div class="stock-entry" style="display:grid; grid-template-columns: 2fr 1fr auto; gap:8px; margin-bottom:8px; align-items:center;">
+                                <input type="number" class="stock-qty" placeholder="Cantidad" min="0.1" step="0.1" required style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px;">
+                                <select class="stock-unit" required style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px;">
+                                    <option value="">Unidad</option>
+                                    <option value="g">Gramos (g)</option>
+                                    <option value="samples">Samples</option>
+                                    <option value="piezas">Piezas</option>
+                                </select>
+                                <button type="button" onclick="removeStockEntry(this)" style="display:none; padding:8px 10px; background:var(--danger); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px;">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-stock-btn" style="padding:8px 16px; background:var(--bg-gray); color:var(--primary); border:1px dashed var(--primary); border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; margin-top:4px;">+ Agregar otra presentación</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tea-notes">Notas (origen, proveedor, año, etc.):</label>
+                        <textarea id="tea-notes" placeholder="Ej: De las montañas de Wu Yi, 2023..."
+                            rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tea-link">Link de compra (URL):</label>
+                        <input type="url" id="tea-link" placeholder="https://ejemplo.com/producto">
+                    </div>
+
+                    <button type="submit" class="btn">Agregar Té al Inventario</button>
+                </form>
+            </div>
+
+            <div class="card" id="add-category-section">
+                <h3>¿Falta una categoría?</h3>
+                <div class="form-group">
+                    <label for="new-category-name">Nombre de la nueva categoría:</label>
+                    <input type="text" id="new-category-name" placeholder="Ej: Herbal, Fermentado...">
+                </div>
+                <div class="form-group">
+                    <label for="new-category-icon">Emoji (icono):</label>
+                    <input type="text" id="new-category-icon" placeholder="Ej: 🌿, 🍂..." maxlength="2">
+                </div>
+                <button id="add-category-btn" class="btn btn-secondary">Crear Categoría</button>
+            </div>
+        </section>
+
+        <!-- SECTION: Nueva Cata -->
+        <section id="tasting" class="section">
+            <div class="card">
+                <h3>Registrar una Nueva Cata</h3>
+                <form id="tasting-form">
+                    <div class="form-group">
+                        <label>Opción 1: Té del inventario</label>
+                        <select id="tasting-tea" style="margin-bottom: 20px;">
+                            <option value="">Selecciona un té de tu inventario</option>
+                        </select>
+                        <div
+                            style="text-align: center; margin-bottom: 20px; color: var(--text-light); font-weight: 500;">
+                            O</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opción 2: Agregar un té nuevo para esta cata</label>
+                        <input type="text" id="tasting-tea-new-name"
+                            placeholder="Nombre del té (si no está en tu inventario)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tasting-tea-new-category">Si es nuevo, selecciona categoría:</label>
+                        <select id="tasting-tea-new-category">
+                            <option value="">Categoría</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tasting-date">Fecha de la cata:</label>
+                        <input type="date" id="tasting-date" required>
+                    </div>
+
+                    <div class="evaluation-section">
+                        <div class="evaluation-row">
+                            <div class="evaluation-label">⭐ Aroma - ¿Cómo te pareció?</div>
+                            <div class="rating-input" id="aroma-rating"></div>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <div class="evaluation-label">⭐ Sabor - ¿Te gustó?</div>
+                            <div class="rating-input" id="sabor-rating"></div>
+                        </div>
+
+                        <div class="evaluation-row">
+                            <div class="evaluation-label">⭐ Overall - ¿En general qué te pareció?</div>
+                            <div class="rating-input" id="overall-rating"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tasting-notes">Notas (opcional):</label>
+                        <textarea id="tasting-notes" placeholder="Cualquier observación que quieras guardar..."
+                            rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group" id="consumption-group">
+                        <label for="tasting-consumption">Cantidad consumida en esta sesión:</label>
+                        <div class="quantity-input-group">
+                            <input type="number" id="tasting-consumption" placeholder="Cantidad" min="0" step="0.5" value="6">
+                            <select id="tasting-consumption-unit">
+                                <option value="g">Gramos (g)</option>
+                                <option value="samples">Samples</option>
+                                <option value="piezas">Piezas</option>
+                            </select>
+                        </div>
+                        <div id="stock-preview" style="margin-top:6px; font-size:12px; color:var(--text-light);"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="tasting-drank" checked>
+                            <span>✓ Descontar cantidad del inventario</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn">Guardar Cata</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECTION: Historial -->
+        <section id="history" class="section">
+            <div class="card">
+                <h3>Historial de Catas</h3>
+                <div class="search-box">
+                    <input type="text" id="search-history" placeholder="🔍 Buscar en historial...">
+                </div>
+                <div id="history-container"></div>
+            </div>
+        </section>
+
+        <!-- SECTION: Estadísticas -->
+        <section id="stats" class="section">
+            <div class="card">
+                <h3>Estadísticas Generales</h3>
+                <div class="stats" id="stats-advanced"></div>
+            </div>
+
+            <div class="card">
+                <h3>Tés Mejor Evaluados</h3>
+                <div id="top-teas-container"></div>
+            </div>
+
+            <div class="card">
+                <h3>Categorías Más Catadas</h3>
+                <div id="most-tasted-container"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL: Detalle de Té -->
+    <div id="tea-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-tea-name"></h2>
+                <button class="modal-close" onclick="window.closeTeaModal(event); return false;">✕</button>
+            </div>
+            <div id="modal-tea-content"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: Editar Té -->
+    <div id="edit-tea-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Té</h2>
+                <button class="modal-close" onclick="window.closeEditModal(event); return false;">✕</button>
+            </div>
+            <form id="edit-tea-form">
+                <div class="form-group">
+                    <label for="edit-tea-name">Nombre:</label>
+                    <input type="text" id="edit-tea-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-tea-category">Categoría:</label>
+                    <select id="edit-tea-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Stock disponible:</label>
+                    <div id="edit-stock-entries"></div>
+                    <button type="button" id="edit-add-stock-btn" style="padding:8px 16px; background:var(--bg-gray); color:var(--primary); border:1px dashed var(--primary); border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; margin-top:4px;">+ Agregar otra presentación</button>
+                </div>
+                <div class="form-group">
+                    <label for="edit-tea-notes">Notas:</label>
+                    <textarea id="edit-tea-notes" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-tea-link">Link de compra:</label>
+                    <input type="url" id="edit-tea-link" placeholder="https://ejemplo.com/producto">
+                </div>
+                <button type="submit" class="btn">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    </div> <!-- end app-screen -->
+
+    <script>
+        // FUNCIONES DE CIERRE - DEFINIDAS AL INICIO ABSOLUTO
+        window.closeTeaModal = function (event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const el = document.getElementById('tea-detail-modal');
+            if (el) el.classList.remove('active');
+            return false;
+        };
+
+        window.closeEditModal = function (event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const el = document.getElementById('edit-tea-modal');
+            if (el) el.classList.remove('active');
+            return false;
+        };
+
+        // DATA MANAGEMENT
+        const defaultCategories = [
+            { name: 'Verde', icon: '🟢' },
+            { name: 'Blanco', icon: '⚪' },
+            { name: 'Negro', icon: '⬛' },
+            { name: 'Oolong', icon: '🟣' },
+            { name: 'Pu-erh', icon: '🟤' },
+            { name: 'Dark', icon: '🌑' }
+        ];
+
+        const data = {
+            teas: JSON.parse(localStorage.getItem('gongfu_teas')) || [],
+            tastings: JSON.parse(localStorage.getItem('gongfu_tastings')) || [],
+            categories: JSON.parse(localStorage.getItem('gongfu_categories')) || defaultCategories
+        };
+
+        // ===== SUPABASE CONFIGURATION =====
+        const SUPABASE_URL = 'https://pxlguwgaqrxlecwnnnzc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4bGd1d2dhcXJ4bGVjd25ubnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA5MzIsImV4cCI6MjA5MzMzNjkzMn0.2cyeDWTI8Rc6H5_I42nyYBFWErwe6f82OEiz5RvHQB4';
+
+        let supabaseClient = null;
+        let currentUser = null;
+
+        // AUTH UI HELPERS
+        function showAuthTab(tab) {
+            document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('tab-login').style.background = tab === 'login' ? '#8B6F47' : '#F5F3EE';
+            document.getElementById('tab-login').style.color = tab === 'login' ? 'white' : '#8B6F47';
+            document.getElementById('tab-register').style.background = tab === 'register' ? '#8B6F47' : '#F5F3EE';
+            document.getElementById('tab-register').style.color = tab === 'register' ? 'white' : '#8B6F47';
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+        window.showAuthTab = showAuthTab;
+
+        function showAuthError(msg) {
+            const el = document.getElementById('auth-error');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+        function showAuthSuccess(msg) {
+            const el = document.getElementById('auth-success');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('auth-error').style.display = 'none';
+        }
+        function setAuthLoading(show) {
+            document.getElementById('auth-loading').style.display = show ? 'block' : 'none';
+        }
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) { showAuthError('Completa todos los campos'); return; }
+            setAuthLoading(true);
+            const { data: authData, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            setAuthLoading(false);
+            if (error) { showAuthError('Correo o contraseña incorrectos'); return; }
+            onUserLoggedIn(authData.user);
+        };
+
+        window.handleRegister = async function() {
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const password2 = document.getElementById('reg-password2').value;
+            if (!email || !password || !password2) { showAuthError('Completa todos los campos'); return; }
+            if (password !== password2) { showAuthError('Las contraseñas no coinciden'); return; }
+            if (password.length < 6) { showAuthError('La contraseña debe tener al menos 6 caracteres'); return; }
+            setAuthLoading(true);
+            const { data: authData, error } = await supabaseClient.auth.signUp({ email, password });
+            setAuthLoading(false);
+            if (error) { showAuthError(error.message); return; }
+            if (authData.user && !authData.session) {
+                showAuthSuccess('¡Cuenta creada! Revisa tu correo para confirmar tu cuenta, luego inicia sesión.');
+            } else if (authData.user) {
+                onUserLoggedIn(authData.user);
+            }
+        };
+
+        window.handleLogout = async function() {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            data.teas = [];
+            data.tastings = [];
+            data.categories = defaultCategories;
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
+        };
+
+        function onUserLoggedIn(user) {
+            currentUser = user;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('user-email-display').textContent = user.email;
+            loadFromSupabase();
+        }
+
+        // Inicializar Supabase
+        async function initSupabase() {
+            try {
+                if (!window.supabase) {
+                    console.warn('Supabase library not loaded');
+                    return;
+                }
+                const { createClient } = window.supabase;
+                supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log('✅ Supabase conectado');
+
+                // Check if already logged in
+                const { data: sessionData } = await supabaseClient.auth.getSession();
+                if (sessionData.session) {
+                    onUserLoggedIn(sessionData.session.user);
+                }
+            } catch (err) {
+                console.error('❌ Error Supabase:', err);
+            }
+        }
+
+        // Cargar datos de Supabase
+        async function loadFromSupabase() {
+            if (!supabaseClient || !currentUser) return;
+            const syncId = currentUser.id;
+
+            try {
+                const { data: result, error } = await supabaseClient
+                    .from('user_data')
+                    .select('app_data')
+                    .eq('sync_id', syncId);
+
+                if (error) {
+                    console.log('Primera vez sin datos:', error.message);
+                    return;
+                }
+
+                if (result && result.length > 0) {
+                    const imported = JSON.parse(result[0].app_data);
+                    data.teas = imported.teas || [];
+                    data.tastings = imported.tastings || [];
+                    data.categories = imported.categories || defaultCategories;
+                    migrateTeaStock();
+                    saveData();
+                    console.log('✅ Datos cargados desde Supabase');
+                    renderInventory();
+                    updateTastingForm();
+                    renderHistory();
+                    renderStats();
+                } else {
+                    console.log('Sin datos previos en Supabase');
+                    renderInventory();
+                }
+            } catch (err) {
+                console.log('Error al cargar:', err.message);
+            }
+        }
+
+        // Sincronizar a Supabase
+        async function syncToSupabase() {
+            if (!supabaseClient || !currentUser) return;
+            const syncId = currentUser.id;
+
+            try {
+                const allData = {
+                    teas: data.teas,
+                    tastings: data.tastings,
+                    categories: data.categories,
+                    lastSync: new Date().toISOString()
+                };
+
+                const { error } = await supabaseClient
+                    .from('user_data')
+                    .upsert({
+                        sync_id: syncId,
+                        app_data: JSON.stringify(allData),
+                        updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'sync_id'
+                    });
+
+                if (error) {
+                    console.warn('Sync error:', error.message);
+                } else {
+                    console.log('✅ Datos sincronizados a Supabase');
+                }
+            } catch (err) {
+                console.warn('Sync exception:', err.message);
+            }
+        }
+
+        // Sincronizar cada 5 segundos
+        setInterval(syncToSupabase, 5000);
+
+        // Inicializar Supabase al cargar
+        window.addEventListener('load', initSupabase);
+
+        let currentEditingTeaId = null;
+
+        // FUNCIONES DE CIERRE DE MODALES - DEFINIDAS AL INICIO
+        // UTILITY FUNCTIONS
+        function saveData() {
+            localStorage.setItem('gongfu_teas', JSON.stringify(data.teas));
+            localStorage.setItem('gongfu_tastings', JSON.stringify(data.tastings));
+            localStorage.setItem('gongfu_categories', JSON.stringify(data.categories));
+        }
+
+        function showMessage(text, type = 'success') {
+            const msg = document.getElementById('success-message');
+            msg.textContent = text;
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 3000);
+        }
+
+        function getTeaTastings(teaId) {
+            return data.tastings.filter(t => {
+                if (!t.teaId) return false;
+                return parseInt(t.teaId) === parseInt(teaId);
+            });
+        }
+
+        function getAverageRating(teaId) {
+            const tastings = getTeaTastings(teaId);
+            if (tastings.length === 0) return 0;
+            const avg = tastings.reduce((sum, t) => sum + t.overall, 0) / tastings.length;
+            return avg.toFixed(1);
+        }
+
+        function renderStars(rating) {
+            const rounded = Math.round(rating);
+            return '⭐'.repeat(rounded) + '☆'.repeat(5 - rounded);
+        }
+
+        // TAB NAVIGATION
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.getAttribute('data-tab');
+                document.getElementById(tab).classList.add('active');
+
+                if (tab === 'inventory') {
+                    renderInventory();
+                    setupSearchInventory();
+                }
+                if (tab === 'tasting') updateTastingForm();
+                if (tab === 'history') {
+                    renderHistory();
+                    setupSearchHistory();
+                }
+                if (tab === 'stats') renderStats();
+            });
+        });
+
+        // SET TODAY'S DATE
+        document.getElementById('tasting-date').valueAsDate = new Date();
+
+        // CATEGORY SELECTOR
+        document.querySelectorAll('#category-selector .category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('#category-selector .category-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                document.getElementById('tea-category').value = card.getAttribute('data-category');
+            });
+        });
+
+        // STOCK ENTRY HELPERS
+        window.removeStockEntry = function(btn) {
+            btn.closest('.stock-entry').remove();
+            updateRemoveButtons('stock-entries');
+        };
+        window.removeEditStockEntry = function(btn) {
+            btn.closest('.stock-entry').remove();
+            updateRemoveButtons('edit-stock-entries');
+        };
+        function updateRemoveButtons(containerId) {
+            const entries = document.querySelectorAll(`#${containerId} .stock-entry`);
+            entries.forEach((entry, idx) => {
+                const btn = entry.querySelector('button');
+                btn.style.display = entries.length > 1 ? 'block' : 'none';
+            });
+        }
+        function createStockEntryHTML(qty, unit, removeFunc) {
+            const div = document.createElement('div');
+            div.className = 'stock-entry';
+            div.style.cssText = 'display:grid; grid-template-columns: 2fr 1fr auto; gap:8px; margin-bottom:8px; align-items:center;';
+            div.innerHTML = `
+                <input type="number" class="stock-qty" placeholder="Cantidad" min="0.1" step="0.1" value="${qty || ''}" style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px;">
+                <select class="stock-unit" style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px;">
+                    <option value="g" ${unit==='g'?'selected':''}>Gramos (g)</option>
+                    <option value="samples" ${unit==='samples'?'selected':''}>Samples</option>
+                    <option value="piezas" ${unit==='piezas'?'selected':''}>Piezas</option>
+                </select>
+                <button type="button" onclick="${removeFunc}(this)" style="padding:8px 10px; background:var(--danger); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px;">✕</button>
+            `;
+            return div;
+        }
+        function getStockFromContainer(containerId) {
+            const entries = document.querySelectorAll(`#${containerId} .stock-entry`);
+            const stock = [];
+            let valid = true;
+            entries.forEach(entry => {
+                const qty = parseFloat(entry.querySelector('.stock-qty').value);
+                const unit = entry.querySelector('.stock-unit').value;
+                if (!qty || qty <= 0 || !unit) { valid = false; return; }
+                stock.push({ quantity: qty, unit });
+            });
+            return valid ? stock : null;
+        }
+        function hasDuplicateUnits(stock) {
+            const units = stock.map(s => s.unit);
+            return units.length !== new Set(units).size;
+        }
+
+        document.getElementById('add-stock-btn').addEventListener('click', () => {
+            const container = document.getElementById('stock-entries');
+            container.appendChild(createStockEntryHTML('', 'g', 'removeStockEntry'));
+            updateRemoveButtons('stock-entries');
+        });
+
+        // MIGRATE OLD DATA: tea.quantity+unit → tea.stock
+        function migrateTeaStock() {
+            data.teas.forEach(tea => {
+                if (!tea.stock) {
+                    tea.stock = [{ quantity: tea.quantity || 0, unit: tea.unit || 'g' }];
+                    delete tea.quantity;
+                    delete tea.unit;
+                }
+            });
+        }
+        migrateTeaStock();
+
+        function displayStock(tea) {
+            if (!tea.stock || tea.stock.length === 0) return '—';
+            return tea.stock.map(s => `${s.quantity}${s.unit === 'g' ? 'g' : ' ' + s.unit}`).join(' · ');
+        }
+
+        // ADD TEA FORM
+        document.getElementById('add-tea-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('tea-name').value.trim();
+            const category = document.getElementById('tea-category').value;
+            const notes = document.getElementById('tea-notes').value.trim();
+            const link = document.getElementById('tea-link').value.trim();
+
+            if (!category) {
+                showMessage('Selecciona una categoría', 'error');
+                return;
+            }
+
+            const stock = getStockFromContainer('stock-entries');
+            if (!stock || stock.length === 0) {
+                showMessage('Agrega al menos una cantidad con unidad', 'error');
+                return;
+            }
+            if (hasDuplicateUnits(stock)) {
+                showMessage('No puedes repetir unidades — combínalas en una sola entrada', 'error');
+                return;
+            }
+
+            const existingTea = data.teas.find(t => t.name.toLowerCase() === name.toLowerCase() && t.category === category);
+
+            if (existingTea) {
+                existingTea.stock = stock;
+                existingTea.notes = notes;
+                existingTea.link = link;
+                saveData();
+                showMessage(`✓ "${name}" actualizado`);
+            } else {
+                const tea = { id: Date.now(), name, category, stock, notes, link, dateAdded: new Date().toISOString() };
+                data.teas.push(tea);
+                saveData();
+                showMessage(`✓ "${name}" agregado al inventario`);
+            }
+
+            document.getElementById('add-tea-form').reset();
+            document.querySelectorAll('#category-selector .category-card').forEach(c => c.classList.remove('selected'));
+            // Reset stock entries to 1
+            document.getElementById('stock-entries').innerHTML = '';
+            const firstEntry = createStockEntryHTML('', 'g', 'removeStockEntry');
+            firstEntry.querySelector('button').style.display = 'none';
+            document.getElementById('stock-entries').appendChild(firstEntry);
+            renderInventory();
+        });
+
+        // ADD CATEGORY
+        document.getElementById('add-category-btn').addEventListener('click', () => {
+            const name = document.getElementById('new-category-name').value.trim();
+            const icon = document.getElementById('new-category-icon').value.trim();
+
+            if (!name || !icon) {
+                showMessage('Completa ambos campos', 'error');
+                return;
+            }
+
+            if (data.categories.some(c => c.name === name)) {
+                showMessage('Esta categoría ya existe', 'error');
+                return;
+            }
+
+            data.categories.push({ name, icon });
+            saveData();
+            showMessage(`✓ Categoría "${name}" creada`);
+
+            document.getElementById('new-category-name').value = '';
+            document.getElementById('new-category-icon').value = '';
+
+            updateTastingForm();
+        });
+
+        // RATING INPUT HELPER
+        function createRatingInput(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = '⭐';
+                star.addEventListener('click', () => {
+                    document.querySelectorAll(`#${containerId} .star`).forEach((s, idx) => {
+                        s.classList.toggle('active', idx < i);
+                    });
+                    container.dataset.rating = i;
+                });
+                container.appendChild(star);
+            }
+        }
+
+        createRatingInput('aroma-rating');
+        createRatingInput('sabor-rating');
+        createRatingInput('overall-rating');
+
+        // UPDATE TASTING FORM
+        function updateTastingForm() {
+            const select = document.getElementById('tasting-tea');
+            select.innerHTML = '<option value="">Selecciona un té de tu inventario</option>';
+
+            data.teas.forEach(tea => {
+                const option = document.createElement('option');
+                option.value = tea.id;
+                const stockStr = displayStock(tea);
+                option.textContent = `${tea.name} (${stockStr}) - ${tea.category}`;
+                select.appendChild(option);
+            });
+
+            const catSelect = document.getElementById('tasting-tea-new-category');
+            catSelect.innerHTML = '<option value="">Categoría</option>';
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                catSelect.appendChild(option);
+            });
+
+            updateConsumptionUnits();
+        }
+
+        // Update consumption unit selector based on selected tea's stock
+        function updateConsumptionUnits() {
+            const teaId = document.getElementById('tasting-tea').value;
+            const unitSelect = document.getElementById('tasting-consumption-unit');
+            const preview = document.getElementById('stock-preview');
+
+            if (!teaId) {
+                unitSelect.innerHTML = `
+                    <option value="g">Gramos (g)</option>
+                    <option value="samples">Samples</option>
+                    <option value="piezas">Piezas</option>
+                `;
+                preview.textContent = '';
+                return;
+            }
+
+            const tea = data.teas.find(t => t.id == teaId);
+            if (!tea || !tea.stock) return;
+
+            unitSelect.innerHTML = tea.stock.map(s =>
+                `<option value="${s.unit}">${s.unit === 'g' ? 'Gramos (g)' : s.unit.charAt(0).toUpperCase() + s.unit.slice(1)} — Stock: ${s.quantity}${s.unit === 'g' ? 'g' : ' ' + s.unit}</option>`
+            ).join('');
+
+            const stockInfo = tea.stock.map(s => `📦 ${s.quantity}${s.unit === 'g' ? 'g' : ' ' + s.unit}`).join('  ·  ');
+            preview.innerHTML = `Stock actual: ${stockInfo}`;
+        }
+
+        document.getElementById('tasting-tea').addEventListener('change', updateConsumptionUnits);
+
+        // TASTING FORM SUBMIT
+        document.getElementById('tasting-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let teaId = document.getElementById('tasting-tea').value;
+            let teaName = '';
+            let category = '';
+            let isFromInventory = false;
+
+            const newTeaName = document.getElementById('tasting-tea-new-name').value.trim();
+
+            if (newTeaName) {
+                teaName = newTeaName;
+                category = document.getElementById('tasting-tea-new-category').value;
+                if (!category) {
+                    showMessage('Selecciona categoría para el nuevo té', 'error');
+                    return;
+                }
+                isFromInventory = false;
+            } else if (teaId) {
+                const tea = data.teas.find(t => t.id == teaId);
+                teaName = tea.name;
+                category = tea.category;
+                isFromInventory = true;
+            } else {
+                showMessage('Selecciona o agrega un té', 'error');
+                return;
+            }
+
+            const aroma = parseInt(document.getElementById('aroma-rating').dataset.rating) || 0;
+            const sabor = parseInt(document.getElementById('sabor-rating').dataset.rating) || 0;
+            const overall = parseInt(document.getElementById('overall-rating').dataset.rating) || 0;
+
+            if (aroma === 0 || sabor === 0 || overall === 0) {
+                showMessage('Completa todas las evaluaciones', 'error');
+                return;
+            }
+
+            const consumption = parseFloat(document.getElementById('tasting-consumption').value) || 0;
+            const consumptionUnit = document.getElementById('tasting-consumption-unit').value;
+
+            const tasting = {
+                id: Date.now(),
+                teaId: isFromInventory ? parseInt(teaId) : null,
+                teaName,
+                category,
+                date: document.getElementById('tasting-date').value,
+                aroma,
+                sabor,
+                overall,
+                notes: document.getElementById('tasting-notes').value.trim(),
+                drank: document.getElementById('tasting-drank').checked,
+                consumption,
+                consumptionUnit
+            };
+
+            // Descontar del inventario si aplica — por unidad específica
+            if (tasting.drank && isFromInventory && teaId) {
+                const tea = data.teas.find(t => t.id == teaId);
+                if (tea && tea.stock) {
+                    const stockEntry = tea.stock.find(s => s.unit === consumptionUnit);
+                    if (stockEntry) {
+                        stockEntry.quantity -= consumption;
+                        if (stockEntry.quantity < 0) stockEntry.quantity = 0;
+                    }
+                }
+            }
+
+            data.tastings.push(tasting);
+            saveData();
+            showMessage(`✓ Cata de "${teaName}" registrada`);
+
+            document.getElementById('tasting-form').reset();
+            document.getElementById('tasting-date').valueAsDate = new Date();
+            document.getElementById('tasting-consumption').value = '6';
+            createRatingInput('aroma-rating');
+            createRatingInput('sabor-rating');
+            createRatingInput('overall-rating');
+            renderInventory();
+        });
+
+        // RENDER INVENTORY
+        function renderInventory() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            const stats = {
+                totalTeas: data.teas.length,
+                teasInStock: data.teas.filter(t => t.stock && t.stock.some(s => s.quantity > 0)).length,
+                totalTastings: data.tastings.length,
+                favoriteRating: data.tastings.length > 0
+                    ? (data.tastings.reduce((sum, t) => sum + t.overall, 0) / data.tastings.length).toFixed(1)
+                    : 0
+            };
+
+            const statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalTeas}</div>
+                    <div class="stat-label">Tés en colección</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.teasInStock}</div>
+                    <div class="stat-label">Unidades en stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalTastings}</div>
+                    <div class="stat-label">Catas realizadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.favoriteRating}</div>
+                    <div class="stat-label">Rating promedio</div>
+                </div>
+            `;
+            document.getElementById('stats-container').innerHTML = statsHTML;
+
+            if (data.teas.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No tienes tés agregados aún. ¡Comienza a agregar tus tés favoritos!</p></div>';
+                return;
+            }
+
+            data.categories.forEach(category => {
+                const teasByCategory = data.teas.filter(t => t.category === category.name);
+                if (teasByCategory.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'card';
+
+                let html = `<h3>${category.icon} ${category.name}</h3><div class="tea-list">`;
+
+                teasByCategory.forEach(tea => {
+                    const tastings = getTeaTastings(tea.id);
+                    const tastingCount = tastings.length;
+
+                    // Calcular promedios
+                    let avgAroma = 0, avgSabor = 0, avgOverall = 0;
+                    if (tastingCount > 0) {
+                        avgAroma = (tastings.reduce((sum, t) => sum + t.aroma, 0) / tastingCount).toFixed(1);
+                        avgSabor = (tastings.reduce((sum, t) => sum + t.sabor, 0) / tastingCount).toFixed(1);
+                        avgOverall = (tastings.reduce((sum, t) => sum + t.overall, 0) / tastingCount).toFixed(1);
+                    }
+
+                    const displayQty = displayStock(tea);
+
+                    let tastingInfo = '';
+                    if (tastingCount > 0) {
+                        tastingInfo = `
+                            <div style="background: var(--bg-gray); padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="font-size: 12px; color: var(--text-light); margin-bottom: 6px;">📊 Catas: ${tastingCount}</div>
+                                <div style="font-size: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                                    <div><span style="color: var(--text-dark); font-weight: 600;">A:</span> ${renderStars(avgAroma)}</div>
+                                    <div><span style="color: var(--text-dark); font-weight: 600;">S:</span> ${renderStars(avgSabor)}</div>
+                                    <div><span style="color: var(--text-dark); font-weight: 600;">O:</span> ${renderStars(avgOverall)}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <div class="tea-item" onclick="openTeaModal(${tea.id})">
+                            <div class="tea-name">${tea.name}</div>
+                            <span class="tea-category">${tea.category}</span>
+                            <div class="tea-quantity">📦 ${displayQty}</div>
+                            ${tastingInfo}
+                            <div class="tea-actions" onclick="event.stopPropagation()">
+                                <button class="btn btn-cata btn-small" onclick="scrollToTasting(${tea.id})">Degustar</button>
+                                <button class="btn btn-edit btn-small" onclick="openEditModal(${tea.id})">Editar</button>
+                                <button class="btn btn-danger" onclick="deleteTea(${tea.id})">X</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                section.innerHTML = html;
+                container.appendChild(section);
+            });
+        }
+
+        // OPEN TEA DETAIL MODAL
+        // OPEN TEA DETAIL MODAL
+        window.openTeaModal = function (teaId) {
+            console.log('openTeaModal called with teaId:', teaId);
+            const tea = data.teas.find(t => t.id == teaId);
+            console.log('Found tea:', tea);
+            if (!tea) {
+                console.error('Tea not found with ID:', teaId);
+                return;
+            }
+
+            const tastings = getTeaTastings(teaId);
+            console.log('Found tastings:', tastings);
+            const displayQty = displayStock(tea);
+
+            let content = `
+                <div class="tea-detail">
+                    <div class="tea-detail-section">
+                        <h4>Información General</h4>
+                        <div class="tea-detail-info">
+                            <label>Categoría:</label> ${tea.category}
+                        </div>
+                        <div class="tea-detail-info">
+                            <label>Stock:</label> ${displayQty}
+                        </div>
+                        ${tea.notes ? `<div class="tea-detail-info"><label>Notas:</label> ${tea.notes}</div>` : ''}
+                        ${tea.link ? `<div class="tea-detail-info" style="margin-top: 12px;"><a href="${tea.link}" target="_blank" class="btn btn-secondary btn-small" style="display: inline-block; text-decoration: none;">🔗 Ver dónde se compra</a></div>` : ''}
+                    </div>
+            `;
+
+            if (tastings.length > 0) {
+                const avgAroma = (tastings.reduce((sum, t) => sum + t.aroma, 0) / tastings.length).toFixed(1);
+                const avgSabor = (tastings.reduce((sum, t) => sum + t.sabor, 0) / tastings.length).toFixed(1);
+                const avgOverall = (tastings.reduce((sum, t) => sum + t.overall, 0) / tastings.length).toFixed(1);
+
+                content += `
+                    <div class="tea-detail-section">
+                        <h4>Promedio de Evaluaciones (${tastings.length} catas)</h4>
+                        <div class="tea-detail-info">
+                            <label>Aroma:</label> ${renderStars(avgAroma)} (${avgAroma})
+                        </div>
+                        <div class="tea-detail-info">
+                            <label>Sabor:</label> ${renderStars(avgSabor)} (${avgSabor})
+                        </div>
+                        <div class="tea-detail-info">
+                            <label>Overall:</label> ${renderStars(avgOverall)} (${avgOverall})
+                        </div>
+                    </div>
+
+                    <div class="tea-detail-section">
+                        <h4>Historial de Catas</h4>
+                `;
+
+                tastings.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(tasting => {
+                    const consumptionText = tasting.consumption ? `<div style="font-size: 12px; color: var(--text-light); margin-top: 6px;">💧 Consumido: ${tasting.consumption} ${tasting.consumptionUnit}</div>` : '';
+                    content += `
+                        <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border);">
+                            <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">${new Date(tasting.date).toLocaleDateString('es-ES')}</div>
+                            <div style="font-size: 13px; margin-bottom: 6px;">
+                                Aroma: ${renderStars(tasting.aroma)} | Sabor: ${renderStars(tasting.sabor)} | Overall: ${renderStars(tasting.overall)}
+                            </div>
+                            ${consumptionText}
+                            ${tasting.notes ? `<div style="font-size: 12px; color: var(--text-light); font-style: italic; margin-top: 6px;">📝 ${tasting.notes}</div>` : ''}
+                            <button class="btn btn-danger" style="margin-top: 8px;" onclick="deleteTasting(${tasting.id})">Eliminar cata</button>
+                        </div>
+                    `;
+                });
+
+                content += `</div>`;
+            } else {
+                content += `
+                    <div class="empty-state">
+                        <p>Aún no has catado este té. ¡Haz tu primera cata!</p>
+                    </div>
+                `;
+            }
+
+            content += `</div>`;
+
+            document.getElementById('modal-tea-name').textContent = tea.name;
+            document.getElementById('modal-tea-content').innerHTML = content;
+            document.getElementById('tea-detail-modal').classList.add('active');
+        };
+
+        // EDIT TEA MODAL
+        window.openEditModal = function (teaId) {
+            const tea = data.teas.find(t => t.id === teaId);
+            if (!tea) return;
+
+            currentEditingTeaId = teaId;
+
+            document.getElementById('edit-tea-name').value = tea.name;
+            document.getElementById('edit-tea-notes').value = tea.notes || '';
+            document.getElementById('edit-tea-link').value = tea.link || '';
+
+            // Populate multi-stock entries
+            const stockContainer = document.getElementById('edit-stock-entries');
+            stockContainer.innerHTML = '';
+            const stockData = tea.stock || [{ quantity: tea.quantity || 0, unit: tea.unit || 'g' }];
+            stockData.forEach((s, idx) => {
+                const entry = createStockEntryHTML(s.quantity, s.unit, 'removeEditStockEntry');
+                entry.querySelector('button').style.display = stockData.length > 1 ? 'block' : 'none';
+                stockContainer.appendChild(entry);
+            });
+
+            const catSelect = document.getElementById('edit-tea-category');
+            catSelect.innerHTML = '';
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                if (cat.name === tea.category) option.selected = true;
+                catSelect.appendChild(option);
+            });
+
+            document.getElementById('edit-tea-modal').classList.add('active');
+        };
+
+        document.getElementById('edit-add-stock-btn').addEventListener('click', () => {
+            const container = document.getElementById('edit-stock-entries');
+            const entry = createStockEntryHTML('', 'g', 'removeEditStockEntry');
+            container.appendChild(entry);
+            updateRemoveButtons('edit-stock-entries');
+        });
+
+        document.getElementById('edit-tea-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const tea = data.teas.find(t => t.id === currentEditingTeaId);
+            if (!tea) return;
+
+            const stock = getStockFromContainer('edit-stock-entries');
+            if (!stock || stock.length === 0) {
+                showMessage('Agrega al menos una cantidad con unidad', 'error');
+                return;
+            }
+            if (hasDuplicateUnits(stock)) {
+                showMessage('No puedes repetir unidades — combínalas en una sola entrada', 'error');
+                return;
+            }
+
+            tea.name = document.getElementById('edit-tea-name').value.trim();
+            tea.category = document.getElementById('edit-tea-category').value;
+            tea.stock = stock;
+            delete tea.quantity;
+            delete tea.unit;
+            tea.notes = document.getElementById('edit-tea-notes').value.trim();
+            tea.link = document.getElementById('edit-tea-link').value.trim();
+
+            saveData();
+            showMessage('✓ Té actualizado');
+            window.closeEditModal();
+            renderInventory();
+        });
+
+        // DELETE TEA
+        window.deleteTea = function (id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este té?')) {
+                data.teas = data.teas.filter(t => t.id !== id);
+                data.tastings = data.tastings.filter(t => parseInt(t.teaId) !== parseInt(id));
+                saveData();
+                showMessage('Té eliminado');
+                renderInventory();
+            }
+        };
+
+        // DELETE TASTING
+        window.deleteTasting = function (id) {
+            if (confirm('¿Eliminar esta cata?')) {
+                data.tastings = data.tastings.filter(t => t.id !== id);
+                saveData();
+                showMessage('Cata eliminada');
+                window.closeTeaModal();
+                renderHistory();
+            }
+        };
+
+        // RENDER HISTORY
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+
+            if (data.tastings.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No tienes catas registradas aún.</p></div>';
+                return;
+            }
+
+            // Agrupar por categoría
+            const byCategory = {};
+            data.tastings.forEach(tasting => {
+                const cat = tasting.category || 'Sin categoría';
+                if (!byCategory[cat]) byCategory[cat] = [];
+                byCategory[cat].push(tasting);
+            });
+
+            // Ordenar cada grupo por fecha descendente
+            Object.keys(byCategory).forEach(cat => {
+                byCategory[cat].sort((a, b) => new Date(b.date) - new Date(a.date));
+            });
+
+            // Obtener icono de categoría
+            function getCatIcon(catName) {
+                const found = data.categories.find(c => c.name === catName);
+                return found ? found.icon : '🍵';
+            }
+
+            // Ordenar categorías por número de catas desc
+            const sortedCats = Object.keys(byCategory).sort((a, b) => byCategory[b].length - byCategory[a].length);
+
+            const renderTasting = (tasting) => `
+                <div class="history-entry">
+                    <div class="history-date">📅 ${new Date(tasting.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div class="history-tea">☕ ${tasting.teaName}</div>
+                    <div class="history-ratings">
+                        <div class="history-rating-item">
+                            <div class="history-rating-label">Aroma</div>
+                            <div class="history-rating-value">${renderStars(tasting.aroma)}</div>
+                        </div>
+                        <div class="history-rating-item">
+                            <div class="history-rating-label">Sabor</div>
+                            <div class="history-rating-value">${renderStars(tasting.sabor)}</div>
+                        </div>
+                        <div class="history-rating-item">
+                            <div class="history-rating-label">Overall</div>
+                            <div class="history-rating-value">${renderStars(tasting.overall)}</div>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-gray); padding: 8px; border-radius: 6px; margin: 8px 0; font-size: 12px;">
+                        💧 Consumido: <strong>${tasting.consumption} ${tasting.consumptionUnit}</strong>
+                    </div>
+                    ${tasting.notes ? `<div class="history-notes">"${tasting.notes}"</div>` : ''}
+                    <div class="history-actions">
+                        <button class="btn btn-danger btn-small" onclick="deleteTasting(${tasting.id})">Eliminar</button>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = sortedCats.map(cat => {
+                const tastings = byCategory[cat];
+                const icon = getCatIcon(cat);
+                const avgOverall = (tastings.reduce((s, t) => s + t.overall, 0) / tastings.length).toFixed(1);
+                return `
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border-radius: 10px; margin-bottom: 12px; color: white;">
+                            <span style="font-size: 22px;">${icon}</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 16px;">${cat}</div>
+                                <div style="font-size: 12px; opacity: 0.85;">${tastings.length} cata${tastings.length > 1 ? 's' : ''} · Rating promedio: ${renderStars(avgOverall)} ${avgOverall}</div>
+                            </div>
+                        </div>
+                        ${tastings.map(renderTasting).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // RENDER STATS
+        function renderStats() {
+            const totalTeas = data.teas.length;
+            const totalTastings = data.tastings.length;
+            const totalStock = data.teas.reduce((sum, t) => {
+                const g = t.stock ? (t.stock.find(s => s.unit === 'g')?.quantity || 0) : 0;
+                return sum + g;
+            }, 0);
+            const avgRating = totalTastings > 0 ? (data.tastings.reduce((sum, t) => sum + t.overall, 0) / totalTastings).toFixed(1) : 0;
+
+            const statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalTeas}</div>
+                    <div class="stat-label">Tipos de tés únicos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalStock}</div>
+                    <div class="stat-label">Unidades totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalTastings}</div>
+                    <div class="stat-label">Catas registradas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${avgRating}</div>
+                    <div class="stat-label">Rating promedio</div>
+                </div>
+            `;
+            document.getElementById('stats-advanced').innerHTML = statsHTML;
+
+            // Top teas by rating
+            const topTeas = data.teas
+                .map(tea => ({
+                    ...tea,
+                    avgRating: getAverageRating(tea.id),
+                    tastingCount: getTeaTastings(tea.id).length
+                }))
+                .filter(t => t.tastingCount > 0)
+                .sort((a, b) => b.avgRating - a.avgRating);
+
+            const medalColors = ['#FFD700', '#C0C0C0', '#CD7F32'];
+            const medalEmojis = ['🥇', '🥈', '🥉'];
+
+            let topHtml = '';
+            if (topTeas.length === 0) {
+                topHtml = '<p style="color: var(--text-light);">Realiza catas para ver los mejores evaluados</p>';
+            } else {
+                const top3 = topTeas.slice(0, 3);
+                const rest = topTeas.slice(3);
+
+                topHtml = top3.map((tea, idx) => `
+                    <div style="background: white; padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid ${medalColors[idx]}; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                        <div style="font-size: 28px; flex-shrink: 0;">${medalEmojis[idx]}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 15px; color: var(--text-dark); margin-bottom: 3px;">${tea.name}</div>
+                            <div style="font-size: 12px; color: var(--text-light); margin-bottom: 4px;">${tea.category} · ${tea.tastingCount} cata${tea.tastingCount > 1 ? 's' : ''}</div>
+                            <div style="font-size: 14px; color: var(--warning);">${renderStars(tea.avgRating)} <span style="color: var(--text-dark); font-weight: 600;">${tea.avgRating}</span></div>
+                        </div>
+                    </div>
+                `).join('');
+
+                if (rest.length > 0) {
+                    const restHtml = rest.map((tea, idx) => `
+                        <div style="background: white; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--border); display: flex; align-items: center; gap: 10px;">
+                            <div style="font-size: 16px; font-weight: 700; color: var(--text-light); min-width: 28px; text-align: center;">${idx + 4}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 14px; color: var(--text-dark);">${tea.name}</div>
+                                <div style="font-size: 12px; color: var(--text-light);">${tea.category} · ${tea.tastingCount} cata${tea.tastingCount > 1 ? 's' : ''}</div>
+                            </div>
+                            <div style="font-size: 13px; color: var(--warning); white-space: nowrap;">${renderStars(tea.avgRating)} <span style="color: var(--text-dark); font-weight: 600;">${tea.avgRating}</span></div>
+                        </div>
+                    `).join('');
+
+                    topHtml += `
+                        <details style="margin-top: 8px;">
+                            <summary style="cursor: pointer; padding: 10px 14px; background: var(--bg-gray); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--primary); list-style: none; display: flex; align-items: center; justify-content: space-between; user-select: none; border: 1px solid var(--border);">
+                                <span>Ver ranking completo (${rest.length} más)</span>
+                                <span class="details-arrow">▼</span>
+                            </summary>
+                            <div style="margin-top: 10px;">
+                                ${restHtml}
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+            document.getElementById('top-teas-container').innerHTML = topHtml;
+
+            // Most tasted by category
+            const catTastings = {};
+            data.tastings.forEach(t => {
+                const cat = t.category || 'Sin categoría';
+                catTastings[cat] = (catTastings[cat] || 0) + 1;
+            });
+
+            const sortedCatStats = Object.entries(catTastings)
+                .sort((a, b) => b[1] - a[1]);
+
+            let mostHtml = '';
+            if (sortedCatStats.length === 0) {
+                mostHtml = '<p style="color: var(--text-light);">Realiza catas para ver las categorías más probadas</p>';
+            } else {
+                const maxCount = sortedCatStats[0][1];
+                mostHtml = sortedCatStats.map(([cat, count], idx) => {
+                    const icon = (data.categories.find(c => c.name === cat) || {}).icon || '🍵';
+                    const avgOverall = data.tastings.filter(t => (t.category || 'Sin categoría') === cat)
+                        .reduce((s, t) => s + t.overall, 0) / count;
+                    const barWidth = Math.round((count / maxCount) * 100);
+                    return `
+                        <div style="background: white; padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent);">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                <span style="font-size:22px;">${icon}</span>
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; font-size:15px; color:var(--text-dark);">${cat}</div>
+                                    <div style="font-size:12px; color:var(--text-light);">${count} cata${count > 1 ? 's' : ''} · Rating promedio: ${renderStars(avgOverall.toFixed(1))} ${avgOverall.toFixed(1)}</div>
+                                </div>
+                                <div style="font-size:20px; font-weight:800; color:var(--accent);">${count}</div>
+                            </div>
+                            <div style="background:var(--bg-gray); border-radius:6px; height:8px; overflow:hidden;">
+                                <div style="background:var(--accent); height:100%; width:${barWidth}%; border-radius:6px; transition:width 0.4s ease;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('most-tasted-container').innerHTML = mostHtml;
+        }
+
+        // SEARCH
+        function setupSearchInventory() {
+            const searchInput = document.getElementById('search-inventory');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.tea-item');
+                cards.forEach(card => {
+                    const name = card.querySelector('.tea-name').textContent.toLowerCase();
+                    card.parentElement.style.display = name.includes(query) ? '' : 'none';
+                });
+            });
+        }
+
+        function setupSearchHistory() {
+            const searchInput = document.getElementById('search-history');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const groups = document.querySelectorAll('#history-container > div');
+                groups.forEach(group => {
+                    const entries = group.querySelectorAll('.history-entry');
+                    let visibleCount = 0;
+                    entries.forEach(entry => {
+                        const text = entry.textContent.toLowerCase();
+                        const matches = text.includes(query);
+                        entry.style.display = matches ? '' : 'none';
+                        if (matches) visibleCount++;
+                    });
+                    group.style.display = visibleCount > 0 ? '' : 'none';
+                });
+            });
+        }
+
+        // SCROLL TO TASTING
+        window.scrollToTasting = function(teaId) {
+            document.querySelectorAll('.tab-btn')[2].click();
+            setTimeout(() => {
+                document.getElementById('tasting-tea').value = teaId;
+                document.getElementById('tasting-tea-new-name').value = '';
+            }, 100);
+        };
+
+        // CLOSE MODALS
+        document.addEventListener('click', function(e) {
+            const teaModal = document.getElementById('tea-detail-modal');
+            const editModal = document.getElementById('edit-tea-modal');
+
+            if (teaModal && teaModal.classList.contains('active')) {
+                if (e.target === teaModal) {
+                    window.closeTeaModal(e);
+                }
+            }
+
+            if (editModal && editModal.classList.contains('active')) {
+                if (e.target === editModal) {
+                    window.closeEditModal(e);
+                }
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                window.closeTeaModal(e);
+                window.closeEditModal(e);
+            }
+        });
+
+        // INITIAL RENDER
+        renderInventory();
+        updateTastingForm();
+    </script>
+</body>
+</html>

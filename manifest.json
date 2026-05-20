@@ -1,0 +1,39 @@
+{
+  "name": "GongFuLog - Catálogo de Tés",
+  "short_name": "GongFuLog",
+  "description": "Tu diario personal y evaluación de tés de gong fu cha",
+  "start_url": "./index-gongfu.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FEFDF8",
+  "theme_color": "#8B6F47",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/jonas0321tm-cmd/GongFu-Log/main/Gongfu%20Log%20Images/LogoGongfu%20log.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/jonas0321tm-cmd/GongFu-Log/main/Gongfu%20Log%20Images/LogoGongfu%20log.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/jonas0321tm-cmd/GongFu-Log/main/Gongfu%20Log%20Images/LogoGongfu%20log.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://raw.githubusercontent.com/jonas0321tm-cmd/GongFu-Log/main/Gongfu%20Log%20Images/Banner.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
